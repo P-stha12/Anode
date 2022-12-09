@@ -86,17 +86,15 @@ if st.button('Get PDF'):
     response = chatbot.get_chat_response( f"Now, we begin to write a novel. I'll give you the chapter number. Please generate a coherent story with the title {title}. Each chapter is 250 words long. Let's start with chapter 1:", output="text")
     text.append(response['message'])
 
-    for i in range(2,chapters+2):
+    for i in range(2,chapters+1):
         response = chatbot.get_chat_response( f"Chapter {i}", output="text")
         text.append(response['message'])
 
-
     print(text)
     # Text to TXT
-    for i in range(1, chapters+1):
-        with open (f'chapter{i}.txt', 'w') as file:  
-            for line_1 in text:  
-                file.write(line_1)  
+    for i in range(0, chapters):
+        with open (f'chapter{i+1}.txt', 'w') as file:  
+            file.write(text[i])  
 
 
 
