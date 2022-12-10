@@ -57,4 +57,4 @@ class PDF(FPDF):
         self.chapter_body(name)
 
 pdf = PDF()
-pdf.alias_nb_pages()
+

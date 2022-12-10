@@ -1,2 +1,4 @@
 revChatGPT
 fpdf
+replicate
+PyPDF2

@@ -1,9 +1,14 @@
 from setup import get_chat_response , login , rollback_conversation, refresh_session, config
 from revChatGPT.revChatGPT import Chatbot
 import streamlit as st
-from pdf import pdf
 import textwrap
 from fpdf import FPDF
+import replicate
+import os
+from PyPDF2 import PdfReader
+
+os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
+
 
 
 
@@ -62,7 +67,6 @@ class PDF(FPDF):
         self.chapter_body(name)
 
 pdf = PDF()
-pdf.alias_nb_pages()
 
 
 chatbot = Chatbot(config, conversation_id=None)
@@ -76,7 +80,22 @@ st.image("https://imageio.forbes.com/blogs-images/bernardmarr/files/2019/03/Adob
 title = st.text_input('Title of the book')
 author = st.text_input('Author of the book')
 
+# Stable Diffusion
+model = replicate.models.get("stability-ai/stable-diffusion")
+version = model.versions.get("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478")
 
+
+
+#Cover page image
+if st.button('Get Cover Image'):
+    output= version.predict(prompt=f"Minima book Illustration, ({title}), (story of {title})", width = 704, height = 1024)
+    st.image(output, caption='Cover Page')
+
+    pdf.add_page()
+    pdf.image(output[0])
+
+
+# Number of chapters
 chapters = st.number_input('Enter Number of chapters.', min_value=1, max_value=100, value=5, step=1)
 
 if st.button('Get PDF'):
@@ -105,13 +124,6 @@ if st.button('Get PDF'):
 
     pdf.output('dummy.pdf', 'F')
 
-
-
-
-
-
-
-
     # Download Button
     with open("dummy.pdf", "rb") as file:
         btn=st.download_button(
@@ -120,3 +132,16 @@ if st.button('Get PDF'):
         file_name="mybook.pdf",
         mime="application/octet-stream"
     )
+
+
+
+if st.button('Get Audio Book'):
+    # pdf to audio
+    audio_model = replicate.models.get("afiaka87/tortoise-tts")
+    audio_version = audio_model.versions.get("e9658de4b325863c4fcdc12d94bb7c9b54cbfe351b7ca1b36860008172b91c71")
+    reader = PdfReader("dummy.pdf")
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text() + "\n" 
+    output = audio_version.predict(text=text)
+    st.audio(output, format='audio/ogg')
