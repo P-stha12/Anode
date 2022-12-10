@@ -1,5 +1,7 @@
 from setup import get_chat_response , login , rollback_conversation, refresh_session, config
 from pdf import PDF
+import youtube_dl
+import requests
 from revChatGPT.revChatGPT import Chatbot
 import streamlit as st
 import textwrap
@@ -15,7 +17,59 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 import cohere
-from transcription import get_transcript
+
+#function for getting transcription of audio from youtube video
+def get_transcript(link):
+    video_url = link
+    video_info = youtube_dl.YoutubeDL().extract_info(url = video_url,download=False)
+    options={
+        'format':'bestaudio/best',
+        'keepvideo':False,
+        'outtmpl':"video.mp3",
+    }
+
+    with youtube_dl.YoutubeDL(options) as ydl:
+        ydl.download([video_info['webpage_url']])
+    token = "508792ff63d0478d8975224b345a32c4"
+    filename = "video.mp3"
+    
+    def read_file(filename, chunk_size=5242880):
+        with open(filename, 'rb') as _file:
+            while True:
+                data = _file.read(chunk_size)
+                if not data:
+                    break
+                yield data
+
+    #upload audio
+    headers = {'authorization': token}
+    response = requests.post('https://api.assemblyai.com/v2/upload',
+                            headers=headers,
+                            data=read_file(filename))
+
+    #sending transcription request
+    endpoint = "https://api.assemblyai.com/v2/transcript"
+    json = {
+        "audio_url": response.json()['upload_url']
+    }
+    headers = {
+        "authorization": token,
+        "content-type": "application/json"
+    }
+    response = requests.post(endpoint, json=json, headers=headers)
+
+    #get transcription
+    endpoint = f"https://api.assemblyai.com/v2/transcript/{response.json()['id']}"
+    headers = {
+        "authorization": token,
+    }
+
+    while(response.json()['status'] != "completed"):
+        response = requests.get(endpoint, headers=headers)
+
+    text = response.json()['text']
+
+    return text
 
 
 # cohere api_key
@@ -40,13 +94,26 @@ summary_pdf = PDF()
 chatbot = Chatbot(config, conversation_id=None)
 
 
-st.title('Create A Illustrated Novel From a simple Title')
+st.title('Get Sequel/Prequel of your favourite Story')
 st.image("https://imageio.forbes.com/blogs-images/bernardmarr/files/2019/03/AdobeStock_235115918-1200x800.jpeg?format=jpg&width=1200")
 
 
 # Text Boxes
-title = st.text_input('Title of the book')
-author = st.text_input('Author of the book')
+link = st.text_input('Link to the video')
+if st.button('Start Generating'):
+    story = get_transcript(link)
+    st.text("Proceed to the next step")
+    
+preq_seq = st.selectbox(
+    'Prequel or Sequel',
+    ('Prequel', 'Sequel'))
+
+if st.button('Generate the title'):
+    response = chatbot.get_chat_response( f'"{story}". Generate a title for this story', output="text")
+    title = response['message']
+    st.text(f"{title}")
+
+author = "BookAI"
 
 # Stable Diffusion
 model_id = "stabilityai/stable-diffusion-2-1"
@@ -99,7 +166,7 @@ if st.button('Get PDF'):
     st.write('Processing')
 
     text = []
-    response = chatbot.get_chat_response( f"Generate 10 chapter titles for the novel {title}", output="text")
+    response = chatbot.get_chat_response( f"Generate {chapters} chapter titles for the {preq_seq} of this story", output="text")
     chaps= response['message'].rsplit("\n")
     
 
@@ -144,7 +211,7 @@ if st.button('Get PDF'):
                 image.save(f"{chaps[i-1][4:-1]}.jpg")
                 
         
-        pdf.print_chapter(i, f"{chaps[i][4:-1]}", f'chapter{i}.txt')
+        pdf.print_chapter(i, f"{chaps[i-1][4:-1]}", f'chapter{i}.txt')
         pdf.image(f"{chaps[i-1][4:-1]}.jpg",x= 10, w=190, h = 80)
     pdf.output('dummy.pdf', 'F')
     
