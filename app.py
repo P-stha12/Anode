@@ -1,73 +1,34 @@
 from setup import get_chat_response , login , rollback_conversation, refresh_session, config
+from pdf import PDF
 from revChatGPT.revChatGPT import Chatbot
 import streamlit as st
 import textwrap
-from fpdf import FPDF
 import replicate
 import os
-from PyPDF2 import PdfReader
+from PyPDF2 import PdfMerger
+import io
+import warnings
+from PIL import Image
+from stability_sdk import client
+import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
+
+ 
+
+# Environment Variable for Replicate
 os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
 
+stability_api = client.StabilityInference(
+    key='sk-fnorOAW5VL6WZElXjkFrKiCBolm0oJYAKky2obn9sqjkqyq4', 
+    verbose=True,
+)
 
-
-
-class PDF(FPDF):
-    def header(self):
-        # Arial bold 15
-        self.set_font('Arial', 'B', 15)
-        # Calculate width of title and position
-        w = self.get_string_width(title) + 6
-        self.set_x((210 - w) / 2)
-        # Colors of frame, background and text
-        # Thickness of frame (1 mm)
-        self.set_line_width(1)
-        # Title
-        self.cell(w, 9, title, 1, 1, 'C', 1)
-        # Line break
-        self.ln(10)
-
-    def footer(self):
-        # Position at 1.5 cm from bottom
-        self.set_y(-15)
-        # Arial italic 8
-        self.set_font('Arial', 'I', 8)
-        # Text color in gray
-        self.set_text_color(128)
-        # Page number
-        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
-
-    def chapter_title(self, num, label):
-        # Arial 12
-        self.set_font('Arial', '', 12)
-        # Background color
-        self.set_fill_color(200, 220, 255)
-        # Title
-        self.cell(0, 6, 'Chapter %d : %s' % (num, label), 0, 1, 'L', 1)
-        # Line break
-        self.ln(4)
-
-    def chapter_body(self, name):
-        # Read text file
-        with open(name, 'rb') as fh:
-            txt = fh.read().decode('latin-1')
-        # Times 12
-        self.set_font('Times', '', 12)
-        # Output justified text
-        self.multi_cell(0, 5, txt)
-        # Line break
-        self.ln()
-        # Mention in italics
-        self.set_font('', 'I')
-        self.cell(0, 5, '(end of excerpt)')
-
-    def print_chapter(self, num, title, name):
-        self.add_page()
-        self.chapter_title(num, title)
-        self.chapter_body(name)
-
+# PDF Object
 pdf = PDF()
-
+cover_pdf = PDF()
 
 chatbot = Chatbot(config, conversation_id=None)
 
@@ -76,28 +37,50 @@ st.title('BookAI')
 st.image("https://imageio.forbes.com/blogs-images/bernardmarr/files/2019/03/AdobeStock_235115918-1200x800.jpeg?format=jpg&width=1200")
 
 
-# title
+# Text Boxes
 title = st.text_input('Title of the book')
 author = st.text_input('Author of the book')
 
 # Stable Diffusion
-model = replicate.models.get("stability-ai/stable-diffusion")
-version = model.versions.get("27b93a2413e7f36cd83da926f3656280b2931564ff050bf9575f1fdf9bcd7478")
+model_id = "stabilityai/stable-diffusion-2-1"
 
 
 
 #Cover page image
 if st.button('Get Cover Image'):
-    output= version.predict(prompt=f"Minima book Illustration, ({title}), (story of {title})", width = 704, height = 1024)
-    st.image(output, caption='Cover Page')
+    
+    
+    answers = stability_api.generate(
+        prompt= f"Minima book Illustration, ({title}), (story of {title})",
+        width=768, # Generation width, defaults to 512 if not included.
+        height=1088,
+    )
+    for resp in answers:
+        for artifact in resp.artifacts:
+            if artifact.finish_reason == generation.FILTER:
+                warnings.warn(
+                    "Your request activated the API's safety filters and could not be processed."
+                    "Please modify the prompt and try again.")
+            if artifact.type == generation.ARTIFACT_IMAGE:
+                img = Image.open(io.BytesIO(artifact.binary))
+                img_name = str(artifact.seed)+ ".png"
+                img.save(img_name)
+                image = Image.open(img_name)
+                
+                # Custom font style and font size
+                title_font = ImageFont.truetype('playfair/playfair-font.ttf', 50)
+                title_text = f"{title}"
+                image_editable = ImageDraw.Draw(image)
+                image_editable.text((15,15), title_text, (237, 230, 211), font=title_font)
+                image.save("cover.jpg")
+                cover_pdf.add_page()
+                cover_pdf.image("cover.jpg")
 
-    pdf.add_page()
-    pdf.image(output[0])
-
+                cover_pdf.output('cover.pdf', 'F')
+                st.image("cover.jpg")
 
 # Number of chapters
 chapters = st.number_input('Enter Number of chapters.', min_value=1, max_value=100, value=5, step=1)
-
 if st.button('Get PDF'):
     st.write('Processing')
 
@@ -123,9 +106,20 @@ if st.button('Get PDF'):
         pdf.print_chapter(i, f"Chapter {i}", f'chapter{i}.txt')
 
     pdf.output('dummy.pdf', 'F')
+    
+    # Merge pdfs
+    pdfs = ['cover.pdf', 'dummy.pdf']
+
+    merger = PdfMerger()
+
+    for pdf in pdfs:
+        merger.append(pdf)
+
+    merger.write("result.pdf")
+    merger.close()
 
     # Download Button
-    with open("dummy.pdf", "rb") as file:
+    with open("result.pdf", "rb") as file:
         btn=st.download_button(
         label="⬇️ Download PDF",
         data=file,
