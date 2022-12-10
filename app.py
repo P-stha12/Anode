@@ -105,6 +105,33 @@ if st.button('Get PDF'):
     pdf.set_title(title)
     pdf.set_author(author)
     for i in range(1, chapters+1):
+        answers = stability_api.generate(
+        prompt= f"{chaps[i-1][4:-1]}",
+        width=768, # Generation width, defaults to 512 if not included.
+        height=1088,
+        )
+        for resp in answers:
+            for artifact in resp.artifacts:
+                if artifact.finish_reason == generation.FILTER:
+                    warnings.warn(
+                        "Your request activated the API's safety filters and could not be processed."
+                        "Please modify the prompt and try again.")
+                if artifact.type == generation.ARTIFACT_IMAGE:
+                    img = Image.open(io.BytesIO(artifact.binary))
+                    img_name = str(artifact.seed)+ ".png"
+                    img.save(img_name)
+                    image = Image.open(img_name)
+                
+                # Custom font style and font size
+                
+                title_font = ImageFont.load_default()
+                title_text = f"{title}"
+                image_editable = ImageDraw.Draw(image)
+                image_editable.text((15,15), title_text, (237, 230, 211), font=title_font)
+                image.save(f"{chaps[i-1][4:-1]}.jpg")
+                
+        pdf.add_page()
+        pdf.image(f"{chaps[i-1][4:-1]}.jpg")
         pdf.print_chapter(i, f"{chaps[i-1][4:-1]}", f'chapter{i}.txt')
 
     pdf.output('dummy.pdf', 'F')
