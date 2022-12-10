@@ -2,3 +2,4 @@ revChatGPT
 fpdf
 replicate
 PyPDF2
+stability-sdk
