@@ -105,7 +105,7 @@ if st.button('Get PDF'):
     pdf.set_title(title)
     pdf.set_author(author)
     for i in range(1, chapters+1):
-        pdf.print_chapter(i, f"{chaps[i][4:-2]}", f'chapter{i}.txt')
+        pdf.print_chapter(i, f"{chaps[i-1][4:-1]}", f'chapter{i}.txt')
 
     pdf.output('dummy.pdf', 'F')
     
