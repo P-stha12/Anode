@@ -7,7 +7,7 @@ import replicate
 import os
 from PyPDF2 import PdfReader
 
-os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
+os.environ["REPLICATE_API_TOKEN"] = "59e3c4d1e3315584fab824f116d6e29a8e063fc8"
 
 
 
