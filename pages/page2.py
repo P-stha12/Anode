@@ -15,7 +15,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 import cohere
-from ..utils import get_transcription
+from transcription import get_transcript
 
 
 # cohere api_key
