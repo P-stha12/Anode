@@ -45,7 +45,7 @@ author = st.text_input('Author of the book')
 model_id = "stabilityai/stable-diffusion-2-1"
 
 
-
+cover_pdf.add_page()
 #Cover page image
 if st.button('Get Cover Image'):
     
@@ -73,8 +73,8 @@ if st.button('Get Cover Image'):
                 image_editable = ImageDraw.Draw(image)
                 image_editable.text((15,15), title_text, (237, 230, 211), font=title_font)
                 image.save("cover.jpg")
-                cover_pdf.add_page()
-                cover_pdf.image("cover.jpg")
+                
+                cover_pdf.image("cover.jpg",x=0, y=0)
 
                 cover_pdf.output('cover.pdf', 'F')
                 st.image("cover.jpg")
@@ -85,7 +85,7 @@ if st.button('Get PDF'):
     st.write('Processing')
 
     text = []
-    response = chatbot.get_chat_response( f"Now, we begin to write a novel. I'll give you the chapter number. Please generate a coherent story with the title {title}. Each chapter is 250 words long. Let's start with chapter 1:", output="text")
+    response = chatbot.get_chat_response( f"Generate Chapter 1 on a novel titled {title}", output="text")
     text.append(response['message'])
 
     for i in range(2,chapters+1):
