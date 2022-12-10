@@ -28,7 +28,7 @@ class PDF(FPDF):
         self.ln()
         # Mention in italics
         self.set_font('', 'I')
-        self.cell(0, 5, '(end of excerpt)')
+           
 
     def print_chapter(self, num, title, name):
         self.add_page()
