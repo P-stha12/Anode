@@ -68,7 +68,8 @@ if st.button('Get Cover Image'):
                 image = Image.open(img_name)
                 
                 # Custom font style and font size
-                title_font = ImageFont.truetype('playfair/playfair-font.ttf', 50)
+                
+                title_font = ImageFont.load_default()
                 title_text = f"{title}"
                 image_editable = ImageDraw.Draw(image)
                 image_editable.text((15,15), title_text, (237, 230, 211), font=title_font)
@@ -85,11 +86,12 @@ if st.button('Get PDF'):
     st.write('Processing')
 
     text = []
-    response = chatbot.get_chat_response( f"Generate Chapter 1 on a novel titled {title}", output="text")
-    text.append(response['message'])
+    response = chatbot.get_chat_response( f"Generate 10 chapter titles for the novel {title}", output="text")
+    chaps= response['message'].rsplit("\n")
+    
 
-    for i in range(2,chapters+1):
-        response = chatbot.get_chat_response( f"Chapter {i}", output="text")
+    for i in range(1,chapters+1):
+        response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
         text.append(response['message'])
 
     print(text)
@@ -103,7 +105,7 @@ if st.button('Get PDF'):
     pdf.set_title(title)
     pdf.set_author(author)
     for i in range(1, chapters+1):
-        pdf.print_chapter(i, f"Chapter {i}", f'chapter{i}.txt')
+        pdf.print_chapter(i, f"{chaps[i][4:-2]}", f'chapter{i}.txt')
 
     pdf.output('dummy.pdf', 'F')
     
@@ -129,13 +131,13 @@ if st.button('Get PDF'):
 
 
 
-if st.button('Get Audio Book'):
-    # pdf to audio
-    audio_model = replicate.models.get("afiaka87/tortoise-tts")
-    audio_version = audio_model.versions.get("e9658de4b325863c4fcdc12d94bb7c9b54cbfe351b7ca1b36860008172b91c71")
-    reader = PdfReader("dummy.pdf")
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text() + "\n" 
-    output = audio_version.predict(text=text)
-    st.audio(output, format='audio/ogg')
+##if st.button('Get Audio Book'):
+##    # pdf to audio
+##    audio_model = replicate.models.get("afiaka87/tortoise-tts")
+##    audio_version = audio_model.versions.get("e9658de4b325863c4fcdc12d94bb7c9b54cbfe351b7ca1b36860008172b91c71")
+##    reader = PdfReader("dummy.pdf")
+##    text = ""
+##    for page in reader.pages:
+##        text += page.extract_text() + "\n" 
+##    output = audio_version.predict(text=text)
+##    st.audio(output, format='audio/ogg')
