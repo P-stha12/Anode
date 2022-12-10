@@ -3,20 +3,6 @@ from fpdf import FPDF
 title = 'Title'
 
 class PDF(FPDF):
-    def header(self):
-        # Arial bold 15
-        self.set_font('Arial', 'B', 15)
-        # Calculate width of title and position
-        w = self.get_string_width(title) + 6
-        self.set_x((210 - w) / 2)
-        # Colors of frame, background and text
-        # Thickness of frame (1 mm)
-        self.set_line_width(1)
-        # Title
-        self.cell(w, 9, title, 1, 1, 'C', 1)
-        # Line break
-        self.ln(10)
-
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
@@ -42,7 +28,7 @@ class PDF(FPDF):
         with open(name, 'rb') as fh:
             txt = fh.read().decode('latin-1')
         # Times 12
-        self.set_font('Times', '', 12)
+        self.set_font('Times', '', 16)
         # Output justified text
         self.multi_cell(0, 5, txt)
         # Line break
