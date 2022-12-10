@@ -1,4 +1,5 @@
 import youtube_dl
+#uploading audio
 import requests
 
 def get_transcript(link):
@@ -23,7 +24,6 @@ def get_transcript(link):
                     break
                 yield data
 
-    #upload audio
     headers = {'authorization': token}
     response = requests.post('https://api.assemblyai.com/v2/upload',
                             headers=headers,
@@ -52,6 +52,3 @@ def get_transcript(link):
     text = response.json()['text']
 
     return text
-
-print(get_transcript("https://www.youtube.com/watch?v=vVjOmQtueqE"))
-
