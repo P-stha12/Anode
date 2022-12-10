@@ -68,14 +68,17 @@ if st.button('Get Cover Image'):
                 image = Image.open(img_name)
                 
                 # Custom font style and font size
-                
-                title_font = ImageFont.load_default()
+                W = 768
+                title_font = ImageFont.truetype('playfair/playfair-font.ttf', 50)
+                author_font = ImageFont.truetype('playfair/playfair-font.ttf', 20)
                 title_text = f"{title}"
                 image_editable = ImageDraw.Draw(image)
-                image_editable.text((15,15), title_text, (237, 230, 211), font=title_font)
+                w, h = image_editable.textsize(title)
+                image_editable.text(((W-w)/3.5,50), title_text, (237, 230, 211), font=title_font)
+                image_editable.text((630,1050), author, (237, 230, 211), font=author_font,align='left')
                 image.save("cover.jpg")
                 
-                cover_pdf.image("cover.jpg",x=0, y=0)
+                cover_pdf.image("cover.jpg",x=0, y=0, w= 210, h= 297)
 
                 cover_pdf.output('cover.pdf', 'F')
                 st.image("cover.jpg")
@@ -105,7 +108,7 @@ if st.button('Get PDF'):
     pdf.set_title(title)
     pdf.set_author(author)
     for i in range(1, chapters+1):
-        pdf.print_chapter(i, f"{chaps[i-1][4:-1]}", f'chapter{i}.txt')
+        pdf.print_chapter(i, f"{chaps[i][4:-1]}", f'chapter{i}.txt')
 
     pdf.output('dummy.pdf', 'F')
     
