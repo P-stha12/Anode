@@ -180,7 +180,7 @@ if st.button('Get PDF'):
     
 
     for i in range(1,chapters+1):
-        response = chatbot.get_chat_response( f"generate content for {i}", output="text")
+        response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
         if respone['message'][0:2] == "In":
             response = chatbot.get_chat_response( f"generate content for Chapter {i-1}: {chaps[i-1]}", output="text")
         text.append(response['message'])
