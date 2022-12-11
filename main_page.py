@@ -21,7 +21,7 @@ from PIL import ImageFont
 os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
 
 stability_api = client.StabilityInference(
-    key='sk-LxiaWxHa8Mth5US4w8eIVvJXUkZA9H62qsLAR0fADtgYfGdD', 
+    key='sk-D32IvqLxlRBfl40mix3QVTfEcWkANId4slFtRkuB1VTJOujb', 
     verbose=True,
 )
 # PDF Object
