@@ -46,7 +46,7 @@ Please follow the following instructions:
 1. Press all the buttons in order.
 2. Press the next button only after previous task gets completed.
 3. Download button will appear after everything is completed.
-4. We recommend 5 chapters for optimal result.
+4. We recommend 3 chapters for optimal result.
 4. If any error occurs, please press the button of the same step in which the error occured.
 
                     Thank you.
