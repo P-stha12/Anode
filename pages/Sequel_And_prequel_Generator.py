@@ -115,12 +115,11 @@ preq_seq = st.selectbox(
 
 generate_title = st.checkbox('Generate the title')
 if generate_title:
-    st.text(story)
     response = chatbot.get_chat_response( f'Generate a title for {preq_seq} of the following story: {story}', output="text")
     title = response['message']
     st.text(title)
 
-author = "BookAI"
+author = "Anode"
 
 # Stable Diffusion
 model_id = "stabilityai/stable-diffusion-2-1"
