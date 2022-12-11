@@ -26,3 +26,5 @@ The end result of both sections is a novel book with a cover page and pictures f
 
 ## Instructions for Installation
 
+> Clone the repo
+> Open setup.py folder and write your openAI email and password
