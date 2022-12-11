@@ -26,5 +26,13 @@ The end result of both sections is a novel book with a cover page and pictures f
 
 ## Instructions for Installation
 
-> Clone the repo
-> Open setup.py folder and write your openAI email and password
+#### > Clone the repo
+#### > Open setup.py folder and write your openAI email and password in the config section
+#### > Get the session token from openAI as shown in the image below
+
+<img width="1280" alt="image" src="https://user-images.githubusercontent.com/67851367/206921511-3b1e5085-b411-4397-8e78-88950bde5ae7.png">
+
+#### > Paste the token
+#### > install requirements.txt
+#### > run: streamlit run main_page.py
+
