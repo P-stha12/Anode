@@ -95,7 +95,7 @@ if st.button('Get Cover Image'):
                 st.image("cover.jpg")
 
 # Number of chapters
-chapters = st.number_input('Enter Number of chapters.', min_value=1, max_value=100, value=5, step=1)
+chapters = st.number_input('Enter Number of chapters.', min_value=1, max_value=100, value=2, step=1)
 
 complete_text =''
 ## PDF Body
