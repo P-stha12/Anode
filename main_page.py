@@ -14,11 +14,6 @@ import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-import cohere
-
-
-# cohere api_key
-co = cohere.Client("8XUN5KqdPmJOcrNEiI9kU9vjY8H4SWZIgqipfZlt")
 
  
 
