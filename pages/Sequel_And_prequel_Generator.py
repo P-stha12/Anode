@@ -16,8 +16,6 @@ import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-import cohere
-
 
 
 #function for getting transcription of audio from youtube video
@@ -75,10 +73,7 @@ def get_transcript(link):
 
 
 
-# cohere api_key
-co = cohere.Client("8XUN5KqdPmJOcrNEiI9kU9vjY8H4SWZIgqipfZlt")
 
- 
 
 # Environment Variable for Replicate
 os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
