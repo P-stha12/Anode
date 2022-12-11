@@ -25,7 +25,7 @@ def get_transcript(link):
     options={
         'format':'bestaudio/best',
         'keepvideo':False,
-        'outtmpl':"video.mp3",
+        'outtmpl':f"{link[-11:]}.mp3",
     }
 
     with youtube_dl.YoutubeDL(options) as ydl:
