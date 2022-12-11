@@ -125,7 +125,6 @@ preq_seq = st.selectbox(
 
 generate_title = st.button('Generate the title')
 if generate_title:
-    st.text(st.session_state.story)
     response = chatbot.get_chat_response( f'Generate only 5 words title for {preq_seq} of the following story: {st.session_state.story}', output="text")
     st.session_state.title = response['message']
     st.text(st.session_state.title)
