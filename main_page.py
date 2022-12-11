@@ -41,6 +41,17 @@ chatbot = Chatbot(config, conversation_id=None)
 
 st.title('Create A Illustrated Novel From a simple Title')
 st.image("https://imageio.forbes.com/blogs-images/bernardmarr/files/2019/03/AdobeStock_235115918-1200x800.jpeg?format=jpg&width=1200")
+st.text('''
+Please follow the following instructions:
+1. Press all the buttons in order.
+2. Press the next button only after previous task gets completed.
+3. Download button will appear after everything is completed.
+4. We recommend 5 chapters for optimal result.
+4. Please refresh and redo the process if any error occurs.
+
+                    Thank you.
+''')
+
 
 
 # Text Boxes
