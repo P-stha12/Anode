@@ -79,10 +79,9 @@ def get_transcript(link):
 os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
 
 stability_api = client.StabilityInference(
-    key='sk-EMYhAnPZtQkFnOogOPuuBhA1SlloW5YA0VvGJRQGBYCjTn2q', 
+    key='sk-LxiaWxHa8Mth5US4w8eIVvJXUkZA9H62qsLAR0fADtgYfGdD', 
     verbose=True,
 )
-
 # PDF Object
 pdf = PDF()
 cover_pdf = PDF()
