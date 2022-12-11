@@ -22,3 +22,7 @@ The end result of both sections is a novel book with a cover page and pictures f
 
 
 ![319025561_2027942330733761_308555654606432601_n](https://user-images.githubusercontent.com/67851367/206918600-f2239b0a-ce3f-4a24-9abf-4c861be5595c.png)
+
+
+## Instructions for Installation
+
