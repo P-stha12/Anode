@@ -115,9 +115,10 @@ preq_seq = st.selectbox(
 
 generate_title = st.checkbox('Generate the title')
 if generate_title:
-    response = chatbot.get_chat_response( f'Generate a title for the following story: {story}', output="text")
+    st.text(story)
+    response = chatbot.get_chat_response( f'Generate a title for {preq_seq} of the following story: {story}', output="text")
     title = response['message']
-    st.text(f"{title}")
+    st.text(title)
 
 author = "BookAI"
 
@@ -174,12 +175,14 @@ if st.button('Get PDF'):
     st.write('Processing')
 
     text = []
-    response = chatbot.get_chat_response( f"Generate {chapters} chapter titles for the {preq_seq} of the story {title}", output="text")
+    response = chatbot.get_chat_response( f"Generate {chapters} chapter titles for the story {title}", output="text")
     chaps= response['message'].rsplit("\n")
     
 
     for i in range(1,chapters+1):
-        response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
+        response = chatbot.get_chat_response( f"generate content for {i}", output="text")
+        if respone['message'][0:2] == "In":
+            response = chatbot.get_chat_response( f"generate content for Chapter {i-1}: {chaps[i-1]}", output="text")
         text.append(response['message'])
         complete_text += text[0]
 
@@ -218,7 +221,6 @@ if st.button('Get PDF'):
                 image_editable.text((15,15), title_text, (237, 230, 211), font=title_font)
                 image.save(f"{chaps[i-1][4:-1]}.jpg")
                 
-        
         pdf.print_chapter(i, f"{chaps[i-1][4:-1]}", f'chapter{i}.txt')
         pdf.image(f"{chaps[i-1][4:-1]}.jpg",x= 10, w=190, h = 80)
     pdf.output('dummy.pdf', 'F')
@@ -261,7 +263,7 @@ if st.button('Get PDF'):
         btn=st.download_button(
         label="⬇️ Download PDF",
         data=file,
-        file_name="{title}.pdf",
+        file_name=f"{title}.pdf",
         mime="application/octet-stream"
     )
 
