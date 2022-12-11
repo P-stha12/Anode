@@ -31,7 +31,7 @@ def get_transcript(link):
     with youtube_dl.YoutubeDL(options) as ydl:
         ydl.download([video_info['webpage_url']])
     token = "550637d68ff245e8ae6e850a7ac493d4"
-    filename = "video.mp3"
+    filename = f"{link[-11:]}.mp3"
     
     def read_file(filename, chunk_size=5242880):
         with open(filename, 'rb') as _file:
