@@ -75,16 +75,13 @@ def get_transcript(link):
 
 
 
-# cohere api_key
-co = cohere.Client("8XUN5KqdPmJOcrNEiI9kU9vjY8H4SWZIgqipfZlt")
 
- 
 
 # Environment Variable for Replicate
 os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
 
 stability_api = client.StabilityInference(
-    key='sk-JdUA39qvtJ7rcsw4asLvVSPQMdGaha648nsbqZKIuMaGnJ4J', 
+    key='sk-LxiaWxHa8Mth5US4w8eIVvJXUkZA9H62qsLAR0fADtgYfGdD', 
     verbose=True,
 )
 
@@ -99,15 +96,20 @@ chatbot = Chatbot(config, conversation_id=None)
 
 st.title('Get Sequel/Prequel of your favourite Story')
 
+text_video = st.selectbox(
+    'Story or Youtube Link',
+    ('Story', 'Youtube Link'))
 
-# Text Boxes
-link = st.text_input('Link to the video')
-generate_video = st.checkbox('Generate Video')
-if generate_video:
-    story = get_transcript(link)
-    st.text("Proceed to the next step")
+if text_video == 'Youtube Link':
+    # Text Boxes
+    link = st.text_input('Link to the video')
+    generate_video = st.checkbox('Generate Video')
+    if generate_video:
+        story = get_transcript(link)
+        st.text("Proceed to the next step")
 
-
+if text_video == 'Story':
+    story = st.text_input('Paste Your Story Here')
 
 preq_seq = st.selectbox(
     'Prequel or Sequel',
@@ -115,11 +117,11 @@ preq_seq = st.selectbox(
 
 generate_title = st.checkbox('Generate the title')
 if generate_title:
-    response = chatbot.get_chat_response( f'Generate a title for {preq_seq} of the following story: {story}', output="text")
+    response = chatbot.get_chat_response( f'Generate only one 5 words title for the {preq_seq} of the following story : {story}', output="text")
     title = response['message']
     st.text(title)
 
-author = "Anode"
+author = "BookAI"
 
 # Stable Diffusion
 model_id = "stabilityai/stable-diffusion-2-1"
@@ -180,7 +182,7 @@ if st.button('Get PDF'):
 
     for i in range(1,chapters+1):
         response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
-        if respone['message'][0:2] == "In":
+        if response['message'][0:2] == "In":
             response = chatbot.get_chat_response( f"generate content for Chapter {i-1}: {chaps[i-1]}", output="text")
         text.append(response['message'])
         complete_text += text[0]
