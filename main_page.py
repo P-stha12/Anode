@@ -168,7 +168,7 @@ if st.button('Get PDF'):
     #summary_pdf.output(f'about_{title}.pdf', 'F')
     
     #Foreword generation
-    foreword_response = chatbot.get_chat_response( f"write foreword for the book written by you on the title {st.session_state.title}, in the style of an experienced writer, 400 words", output="text")
+    foreword_response = chatbot.get_chat_response( f"write foreword for the book written by you on the title {title}, in the style of an experienced writer, 400 words", output="text")
     foreword = "FOREWORD\n\n\n\n" + foreword_response['message'][27:]
     
     with open (f'foreword.txt', 'w') as file:  
