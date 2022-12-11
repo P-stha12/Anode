@@ -75,13 +75,16 @@ def get_transcript(link):
 
 
 
+# cohere api_key
+co = cohere.Client("8XUN5KqdPmJOcrNEiI9kU9vjY8H4SWZIgqipfZlt")
 
+ 
 
 # Environment Variable for Replicate
 os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
 
 stability_api = client.StabilityInference(
-    key='sk-LxiaWxHa8Mth5US4w8eIVvJXUkZA9H62qsLAR0fADtgYfGdD', 
+    key='sk-EMYhAnPZtQkFnOogOPuuBhA1SlloW5YA0VvGJRQGBYCjTn2q', 
     verbose=True,
 )
 
@@ -95,31 +98,37 @@ chatbot = Chatbot(config, conversation_id=None)
 
 
 st.title('Get Sequel/Prequel of your favourite Story')
+st.text('''
+Please follow the following instructions:
+1. Press all the buttons in order.
+2. Press the next button only after previous task gets completed.
+3. Download button will appear after everything is completed.
+4. We recommend 5 chapters for optimal result.
+4. Please refresh and redo the process if any error occurs.
 
-text_video = st.selectbox(
-    'Story or Youtube Link',
-    ('Story', 'Youtube Link'))
+                    Thank you.
+''')
 
-if text_video == 'Youtube Link':
-    # Text Boxes
-    link = st.text_input('Link to the video')
-    generate_video = st.checkbox('Generate Video')
-    if generate_video:
-        story = get_transcript(link)
-        st.text("Proceed to the next step")
 
-if text_video == 'Story':
-    story = st.text_input('Paste Your Story Here')
+# Text Boxes
+link = st.text_input('Link to the video')
+generate_video = st.button('Generate Video')
+if generate_video:
+    st.session_state.story = get_transcript(link)
+    st.text("Proceed to the next step")
+
+
 
 preq_seq = st.selectbox(
     'Prequel or Sequel',
     ('Prequel', 'Sequel'))
 
-generate_title = st.checkbox('Generate the title')
+generate_title = st.button('Generate the title')
 if generate_title:
-    response = chatbot.get_chat_response( f'Generate only one 5 words title for the {preq_seq} of the following story : {story}', output="text")
-    title = response['message']
-    st.text(title)
+    st.text(st.session_state.story)
+    response = chatbot.get_chat_response( f'Generate only 5 words title for {preq_seq} of the following story: {st.session_state.story}', output="text")
+    st.session_state.title = response['message']
+    st.text(st.session_state.title)
 
 author = "BookAI"
 
@@ -132,7 +141,7 @@ cover_pdf.add_page()
 if st.button('Get Cover Image'):
     
     answers = stability_api.generate(
-        prompt= f"Minima book Illustration, ({title}), (story of {title})",
+        prompt= f"Minima book Illustration, ({st.session_state.title}), (story of {st.session_state.title})",
         width=768, # Generation width, defaults to 512 if not included.
         height=1088,
     )
@@ -150,14 +159,14 @@ if st.button('Get Cover Image'):
                 
                 # Custom font style and font size
                 W = 768
-                title_font = ImageFont.truetype('playfair/playfair-font.ttf', 30)
+                title_font = ImageFont.truetype('playfair/playfair-font.ttf', 50)
                 author_font = ImageFont.truetype('playfair/playfair-font.ttf', 20)
-                title_text = f"{title}"
+                title_text = f"{st.session_state.title}"
                 if ':' in title_text:
                     temp = title_text.split(':')
                     title_text = temp[0] + '\n' + temp[1]
                 image_editable = ImageDraw.Draw(image)
-                w, h = image_editable.textsize(title)
+                w, h = image_editable.textsize(st.session_state.title)
                 image_editable.text(((W-w)/3.7,25), title_text, (237, 230, 211), font=title_font)
                 image_editable.text((630,1050), author, (237, 230, 211), font=author_font,align='left')
                 image.save("cover.jpg")
@@ -172,18 +181,19 @@ chapters = st.number_input('Enter Number of chapters.', min_value=1, max_value=1
 
 complete_text =''
 ## PDF Body
+completed = False
 if st.button('Get PDF'):
-    st.write('Processing')
+    st.write('Good things take time :), Processing...')
 
     text = []
-    response = chatbot.get_chat_response( f"Generate {chapters} chapter titles for the story {title}", output="text")
+    response = chatbot.get_chat_response( f"Generate {chapters} chapter titles for the story {st.session_state.title}", output="text")
     chaps= response['message'].rsplit("\n")
     
 
     for i in range(1,chapters+1):
-        response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
+        response = chatbot.get_chat_response( f"generate content for Chapter {i-1}: {chaps[i-1]}", output="text")
         if response['message'][0:2] == "In":
-            response = chatbot.get_chat_response( f"generate content for Chapter {i-1}: {chaps[i-1]}", output="text")
+            response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
         text.append(response['message'])
         complete_text += text[0]
 
@@ -194,7 +204,7 @@ if st.button('Get PDF'):
     
 
 
-    pdf.set_title(title)
+    pdf.set_title(st.session_state.title)
     pdf.set_author(author)
     for i in range(1, chapters+1):
         answers = stability_api.generate(
@@ -217,13 +227,13 @@ if st.button('Get PDF'):
                 # Custom font style and font size
                 
                 title_font = ImageFont.load_default()
-                title_text = f"{title}"
+                title_text = f"{st.session_state.title}"
                 image_editable = ImageDraw.Draw(image)
                 image_editable.text((15,15), title_text, (237, 230, 211), font=title_font)
-                image.save(f"{chaps[i-1][4:-1]}.jpg")
+                image.save(f"{i-1}.jpg")
                 
         pdf.print_chapter(i, f"{chaps[i-1][4:-1]}", f'chapter{i}.txt')
-        pdf.image(f"{chaps[i-1][4:-1]}.jpg",x= 10, w=190, h = 80)
+        pdf.image(f"{i-1}.jpg",x= 10, w=190, h = 80)
     pdf.output('dummy.pdf', 'F')
     
     #cohere text summarization
@@ -241,7 +251,7 @@ if st.button('Get PDF'):
     #summary_pdf.output(f'about_{title}.pdf', 'F')
     
     #Foreword generation
-    foreword_response = chatbot.get_chat_response( f"write foreword for the book written by AI on the title {title}, 400 words", output="text")
+    foreword_response = chatbot.get_chat_response( f"write foreword for the book written by AI on the title {st.session_state.title}, 400 words", output="text")
     foreword = "FOREWORD\n\n\n\n" + foreword_response['message']
     with open (f'foreword.txt', 'w') as file:  
             file.write(foreword)
@@ -258,13 +268,15 @@ if st.button('Get PDF'):
 
     merger.write("result.pdf")
     merger.close()
+    completed = True
 
-    # Download Button
+# Download Button
+if completed:
     with open("result.pdf", "rb") as file:
         btn=st.download_button(
         label="⬇️ Download PDF",
         data=file,
-        file_name=f"{title}.pdf",
+        file_name=f"{st.session_state.title}.pdf",
         mime="application/octet-stream"
     )
 
