@@ -150,7 +150,7 @@ if st.button('Get Cover Image'):
                 
                 # Custom font style and font size
                 W = 768
-                title_font = ImageFont.truetype('playfair/playfair-font.ttf', 50)
+                title_font = ImageFont.truetype('playfair/playfair-font.ttf', 30)
                 author_font = ImageFont.truetype('playfair/playfair-font.ttf', 20)
                 title_text = f"{title}"
                 if ':' in title_text:
