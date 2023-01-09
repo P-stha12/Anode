@@ -1,6 +1,5 @@
-from setup import get_chat_response , login , rollback_conversation, refresh_session, config
+from setup import chatbot
 from pdf import PDF
-from revChatGPT.revChatGPT import Chatbot
 import streamlit as st
 import textwrap
 import replicate
@@ -30,7 +29,6 @@ cover_pdf = PDF()
 foreword_pdf = PDF()
 summary_pdf = PDF()
 
-chatbot = Chatbot(config, conversation_id=None)
 
 
 st.title('Create A Illustrated Novel From a simple Title')
@@ -103,12 +101,12 @@ if st.button('Get PDF'):
     st.write('Processing')
 
     text = []
-    response = chatbot.get_chat_response( f"Generate 10 chapter titles for the novel {title}", output="text")
+    response = chatbot.ask( f"Generate 10 chapter titles for the novel {title}")
     chaps= response['message'].rsplit("\n")
     
 
     for i in range(1,chapters+1):
-        response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
+        response = chatbot.ask( f"generate content for chapter {i}")
         text.append(response['message'])
         complete_text += text[0]
 
@@ -167,7 +165,7 @@ if st.button('Get PDF'):
     #summary_pdf.output(f'about_{title}.pdf', 'F')
     
     #Foreword generation
-    foreword_response = chatbot.get_chat_response( f"write foreword for the book written by you on the title {title}, in the style of an experienced writer, 400 words", output="text")
+    foreword_response = chatbot.ask( f"write foreword for the book written by you on the title {title}, in the style of an experienced writer, 400 words")
     foreword = "FOREWORD\n\n\n\n" + foreword_response['message']
     
     with open (f'foreword.txt', 'w') as file:  

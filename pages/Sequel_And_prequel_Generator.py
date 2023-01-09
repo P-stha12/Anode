@@ -1,8 +1,7 @@
-from setup import get_chat_response , login , rollback_conversation, refresh_session, config
+from setup import chatbot
 from pdf import PDF
 import youtube_dl
 import requests
-from revChatGPT.revChatGPT import Chatbot
 import streamlit as st
 import textwrap
 import replicate
@@ -88,7 +87,6 @@ cover_pdf = PDF()
 foreword_pdf = PDF()
 summary_pdf = PDF()
 
-chatbot = Chatbot(config, conversation_id=None)
 
 
 st.title('Get Sequel/Prequel of your favourite Story')
@@ -119,7 +117,7 @@ preq_seq = st.selectbox(
 
 generate_title = st.button('Generate the title')
 if generate_title:
-    response = chatbot.get_chat_response( f'Generate only 5 words title for {preq_seq} of the following story: {st.session_state.story}', output="text")
+    response = chatbot.ask( f'Generate only 5 words title for {preq_seq} of the following story: {st.session_state.story}')
     st.session_state.title = response['message']
     st.text(st.session_state.title)
 
@@ -179,14 +177,14 @@ if st.button('Get PDF'):
     st.write('Good things take time :), Processing...')
 
     text = []
-    response = chatbot.get_chat_response( f"Generate {chapters} chapter titles for the story {st.session_state.title}", output="text")
+    response = chatbot.ask( f"Generate {chapters} chapter titles for the story {st.session_state.title}")
     chaps= response['message'].rsplit("\n")
     
 
     for i in range(1,chapters+1):
-        response = chatbot.get_chat_response( f"generate content for Chapter {i-1}: {chaps[i-1]}", output="text")
+        response = chatbot.ask( f"generate content for Chapter {i-1}: {chaps[i-1]}")
         if response['message'][0:2] == "In":
-            response = chatbot.get_chat_response( f"generate content for chapter {i}", output="text")
+            response = chatbot.ask( f"generate content for chapter {i}")
         text.append(response['message'])
         complete_text += text[0]
 
@@ -244,7 +242,7 @@ if st.button('Get PDF'):
     #summary_pdf.output(f'about_{title}.pdf', 'F')
     
     #Foreword generation
-    foreword_response = chatbot.get_chat_response( f"write foreword for the book written by you on the title {st.session_state.title}, in the style of an experienced writer, 400 words", output="text")
+    foreword_response = chatbot.ask( f"write foreword for the book written by you on the title {st.session_state.title}, in the style of an experienced writer, 400 words")
     foreword = "FOREWORD\n\n\n\n" + foreword_response['message']
     with open (f'foreword.txt', 'w') as file:  
             file.write(foreword)
