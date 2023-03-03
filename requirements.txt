@@ -6,3 +6,4 @@ stability-sdk
 youtube_dl
 requests
 setuptools
+openai
