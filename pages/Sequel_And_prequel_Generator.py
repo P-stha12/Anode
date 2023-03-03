@@ -1,6 +1,6 @@
-from setup import chatbot
 from pdf import PDF
-import youtube_dl
+#import youtube_dl
+import yt_dlp as youtube_dl
 import requests
 import streamlit as st
 import textwrap
@@ -15,6 +15,8 @@ import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+import openai
+openai.api_key = "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"
 
 
 #function for getting transcription of audio from youtube video
@@ -117,8 +119,15 @@ preq_seq = st.selectbox(
 
 generate_title = st.button('Generate the title')
 if generate_title:
-    response = chatbot.ask( f'Generate only 5 words title for {preq_seq} of the following story: {st.session_state.story}')
-    st.session_state.title = response['message']
+    response = openai.Completion.create(
+                model="text-davinci-003",
+                prompt= f'Generate only 5 words title for {preq_seq} of the following story: {st.session_state.story}',
+                max_tokens = 5,
+                temperature=0.6
+            )
+    response = response['choices'][0]['text']
+    #response = chatbot.ask( f'Generate only 5 words title for {preq_seq} of the following story: {st.session_state.story}')
+    st.session_state.title = response
     st.text(st.session_state.title)
 
 author = "BookAI"
@@ -177,15 +186,30 @@ if st.button('Get PDF'):
     st.write('Good things take time :), Processing...')
 
     text = []
-    response = chatbot.ask( f"Generate {chapters} chapter titles for the story {st.session_state.title}")
-    chaps= response['message'].rsplit("\n")
+    response = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=f"Generate {chapters} chapter titles for the story {st.session_state.title}",
+                max_tokens = 100,
+                temperature=0.6
+            )
+
+    chaps = response['choices'][0]['text'].rsplit('\n')
+    #response = chatbot.ask( f"Generate {chapters} chapter titles for the story {st.session_state.title}")
+    #chaps= response['message'].rsplit("\n")
     
 
     for i in range(1,chapters+1):
-        response = chatbot.ask( f"generate content for Chapter {i-1}: {chaps[i-1]}")
-        if response['message'][0:2] == "In":
-            response = chatbot.ask( f"generate content for chapter {i}")
-        text.append(response['message'])
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt=f"generate content for chapter {i} :{chaps[i-1][4:-1]} of the novel titled {st.session_state.title}",
+            max_tokens = 300,
+            temperature=0.6
+        )
+        text.append(response['choices'][0]['text'])
+        #response = chatbot.ask( f"generate content for Chapter {i-1}: {chaps[i-1]}")
+        #if response['message'][0:2] == "In":
+            #response = chatbot.ask( f"generate content for chapter {i}")
+        #text.append(response['message'])
         complete_text += text[0]
 
     # Text to TXT
@@ -242,8 +266,13 @@ if st.button('Get PDF'):
     #summary_pdf.output(f'about_{title}.pdf', 'F')
     
     #Foreword generation
-    foreword_response = chatbot.ask( f"write foreword for the book written by you on the title {st.session_state.title}, in the style of an experienced writer, 400 words")
-    foreword = "FOREWORD\n\n\n\n" + foreword_response['message']
+    foreword_response = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=f"write foreword for the book written by you on the title {st.session_state.title}, in the style of an experienced writer, 400 words",
+                max_tokens = 300,
+                temperature=0.6
+            )
+    foreword = "FOREWORD\n\n\n\n" + foreword_response['choices'][0]['text']
     with open (f'foreword.txt', 'w') as file:  
             file.write(foreword)
     foreword_pdf.print_chapter(i, f"Foreword", f'foreword.txt')
