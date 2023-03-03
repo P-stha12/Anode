@@ -1,3 +1,4 @@
+openai
 revChatGPT
 fpdf
 replicate
@@ -6,4 +7,4 @@ stability-sdk
 youtube_dl
 requests
 setuptools
-openai
+
