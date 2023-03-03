@@ -15,8 +15,7 @@ from PIL import ImageFont
 
 
 # Environment Variable for Replicate
-openai.api_key = "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
-"
+openai.api_key = "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"
 
 stability_api = client.StabilityInference(
     key='sk-9ySMDHtntasmhMx8fEIP7wkMpKWon8CXccH3JDeHqEKtMqeG', 
