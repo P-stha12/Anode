@@ -16,8 +16,16 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 import openai
-openai.api_key = "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"
 
+ 
+openai.api_key = "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"
+# Environment Variable for Replicate
+os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
+
+stability_api = client.StabilityInference(
+    key='sk-FMO2lOKk4jwqehIGpDxfnxFt5ctfkKWcEtaZCXMxiKC1UmKT',
+    verbose=True,
+)
 
 #function for getting transcription of audio from youtube video
 def get_transcript(link):
@@ -76,13 +84,6 @@ def get_transcript(link):
 
 
 
-# Environment Variable for Replicate
-os.environ["REPLICATE_API_TOKEN"] = "b3ea4715f5e3450de2093c2c82fd224208a069e3"
-
-stability_api = client.StabilityInference(
-    key='sk-D32IvqLxlRBfl40mix3QVTfEcWkANId4slFtRkuB1VTJOujb', 
-    verbose=True,
-)
 # PDF Object
 pdf = PDF()
 cover_pdf = PDF()
